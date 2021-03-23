@@ -1,7 +1,39 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, getByTestId } from '@testing-library/react';
 import App from './App';
 import axios from 'axios';
 import nock from 'nock';
+
+
+function mockGetUsersApi(...args) {
+  return nock('https://untitled-lg51povwrnr7.runkit.sh')
+  .get(/.*/)
+  .reply(...args);
+}
+
+// page object
+function renderApp() {
+  const app = render(<App />);
+
+  app.waitForError = () =>  waitFor(() => app.getByTestId('app-error'), {timeout: 3000});
+
+  app.getUserList = async () => {
+    const userListItems = await waitFor(() => app.getAllByTestId('user-list-item'), {timeout: 3000});
+    return userListItems.map(userListItemEl => ({
+      getName() {
+        return ''
+      },
+      getImage() {
+        const image = getByTestId(userListItemEl, 'user-list-item-image');
+        return image.src;
+      }
+    }))
+
+  }
+
+  
+
+  return app;
+}
 
 // needed for nock to work with axios
 axios.defaults.adapter = require('axios/lib/adapters/http')
@@ -11,9 +43,7 @@ beforeEach(() => {
 })
 
 it('should render loading when the user list is loading', async () => {
-  nock('https://untitled-lg51povwrnr7.runkit.sh')
-  .get(/.*/)
-  .reply(400, {message: 'mock error occurred'});
+  mockGetUsersApi(400, {message: 'mock error occurred'});
 
   const { getByTestId } = render(<App />);
 
@@ -24,34 +54,34 @@ it('should render loading when the user list is loading', async () => {
 });
 
 it('should render an error when the api call fails', async () => {
-  nock('https://untitled-lg51povwrnr7.runkit.sh')
-  .get(/.*/)
-  .reply(400, {message: 'mock error occurred'});
+  mockGetUsersApi(400, {message: 'mock error occurred'});
 
-  const { getByTestId } = render(<App />);
+  const { waitForError } = renderApp();
 
-  const appError = await waitFor(() => getByTestId('app-error'), {timeout: 3000});
+  const errorEl = await waitForError();
 
-  expect(appError).toHaveTextContent(/^Error: Request failed with status code 400.*/);
+  expect(errorEl).toHaveTextContent(/^Error: Request failed with status code 400.*/);
 });
 
 it('should render the user list when the api returns a list of users', async () => {
-  nock('https://untitled-lg51povwrnr7.runkit.sh')
-  .get(/.*/)
-  .reply(200, [
+  mockGetUsersApi(200, [
     {
       id:'1',
       firstName: 'Joey',
       lastName: 'Jiron',
-      image: 'https://myimage.com',
+      image: 'https://myimage.com/',
     }
   ]);
 
-  const { getAllByTestId } = render(<App />);
+  const { getUserList } = renderApp();
 
-  const userListItems = await waitFor(() => getAllByTestId('user-list-item'), {timeout: 3000});
+  const userListItems = await getUserList();
 
 
   expect(userListItems).toHaveLength(1);
-  expect(userListItems[0]).toHaveTextContent('Joey Jiron')
+  // expect(userListItems[0]).toHaveTextContent('Joey Jiron');
+  // expect(userListItems[0].getName() ).toBe('Joey Jiron');
+  expect(userListItems[0].getImage()).toBe('https://myimage.com/');
 });
+
+it.skip('should render "no users" when the api returns an empty list', async () => {});
