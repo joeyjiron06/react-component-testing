@@ -34,7 +34,7 @@ const styles = {
 
 function UserListItem({user, onMailClicked, onPhoneClicked, ...props}) {
   return (
-    <div {...props} style={{...styles.userListItem, ...props.styles}}>
+    <div data-testid='user-list-item' {...props} style={{...styles.userListItem, ...props.styles}}>
       <div style={styles.userContainer}>
         <img src={user.image} alt="avatar" style={styles.image} />
         <span>{user.firstName + ' ' + user.lastName}</span>
@@ -46,6 +46,6 @@ function UserListItem({user, onMailClicked, onPhoneClicked, ...props}) {
       </div>
     </div>
   );
-} 
+}
 
 export default UserListItem;

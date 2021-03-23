@@ -17,6 +17,7 @@
     "start": "cross-env HTTPS=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:integration": "react-scripts test --runInBand --watch=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -45,7 +45,6 @@ function App() {
         setUsers(fetchedUsers);
         setIsLoading(false);
       } catch (error) {
-        console.log(error);
         setIsLoading(false);
         setError(error.stack);
       }
@@ -82,9 +81,9 @@ function App() {
       )
     }
 
-      {isLoading && (<div>Loading users...</div>)}
-      {error && (<div>{error}</div>)}
-      {users && <UserList users={users} onMailClicked={onMailClicked} onPhoneClicked={onPhoneClicked} style={styles.userList} /> }
+      {isLoading && (<div data-testid='app-loading'>Loading users...</div>)}
+      {error && (<div data-testid='app-error'>{error}</div>)}
+      {users && <UserList data-testid='app-user-list' users={users} onMailClicked={onMailClicked} onPhoneClicked={onPhoneClicked} style={styles.userList} /> }
     </div>
   );
 }
