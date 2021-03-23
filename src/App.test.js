@@ -79,8 +79,6 @@ it('should render the user list when the api returns a list of users', async () 
 
 
   expect(userListItems).toHaveLength(1);
-  // expect(userListItems[0]).toHaveTextContent('Joey Jiron');
-  // expect(userListItems[0].getName() ).toBe('Joey Jiron');
   expect(userListItems[0].getImage()).toBe('https://myimage.com/');
 });
 
